@@ -116,4 +116,22 @@ router.delete('/deletebook/:id', fetchuser, async (req, res) => {
     }
 })
 
+// ROUTE 4: Get an existing Book using: get "/api/books/bookdetail". Login not required
+router.get('/bookdetail/:id',  async (req, res) => {
+    try {
+
+        // Find the book 
+        let book = await Books.findById(req.params.id);
+        if (!book) { return res.status(404).send("Not found") };
+
+        // console.log(book.user.toString());
+
+        res.json({book});
+
+    } catch (error) {
+        // console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+})
+
 module.exports = router
