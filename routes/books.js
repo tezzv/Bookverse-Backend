@@ -7,15 +7,29 @@ const Books = require('../models/Books');
 // ROUTE 1: Get All the Books using: Get "/api/books/fetchallbooks". Login not required
 router.get('/fetchallbooks', async (req, res) => {
     try {
+        
       const books = await Books.find();
+
       res.json(books);
+      
     } catch (error) {
       // console.error(error.message);
       res.status(500).send("Internal Server Error");
     }
   })
   
-
+router.get('/fetchallbooksofuser',fetchuser,async(req,res)=>{
+    try {
+        // await console.log(req.user.id);
+        const books =await Books.find({
+            user : req.user.id,
+        })
+        // console.log(books);
+        res.json(books);
+    } catch (error) {
+        res.status(500).send("internal Server Error")
+    }
+})
 // ROUTE 2: Add a new Book: POST "/api/books/addbook". Login required
 router.post('/addbook', fetchuser, [
     body('title', 'Enter a valid title').isLength({ min: 3 }),
