@@ -87,7 +87,7 @@ router.post('/login', [
 
         // generate JWT Token
         // const authtoken = jwt.sign(data, JWT_SECRET, { expiresIn: "30d" });
-        const authtoken = jwt.sign(data, JWT_SECRET);
+        const authtoken =  await jwt.sign(data, JWT_SECRET);
         // console.log(authtoken);
 
 
@@ -95,6 +95,7 @@ router.post('/login', [
 
     } catch (error) {
         // console.error(error.message);
+        console.log(error);
         res.status(500).send("Internal server Error");
     }
 
