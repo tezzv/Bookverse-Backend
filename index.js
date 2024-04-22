@@ -21,6 +21,8 @@ app.use('/api/auth', require('./routes/auth'));
 
 app.use('/api/books', require('./routes/books'));
 
+app.use('/api/payment', require('./routes/paytm'));
+
 
 
 app.listen(port, () => {
