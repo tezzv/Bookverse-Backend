@@ -3,26 +3,27 @@ const router = express.Router();
 const fetchuser = require('../middleware/fetchuser');
 const { body, validationResult } = require('express-validator');
 const Books = require('../models/Books');
+const bodyParser = require('body-parser');
 
 // ROUTE 1: Get All the Books using: Get "/api/books/fetchallbooks". Login not required
 router.get('/fetchallbooks', async (req, res) => {
     try {
-        
-      const books = await Books.find();
 
-      res.json(books);
-      
+        const books = await Books.find();
+
+        res.json(books);
+
     } catch (error) {
-      // console.error(error.message);
-      res.status(500).send("Internal Server Error");
+        // console.error(error.message);
+        res.status(500).send("Internal Server Error");
     }
-  })
-  
-router.get('/fetchallbooksofuser',fetchuser,async(req,res)=>{
+})
+
+router.get('/fetchallbooksofuser', fetchuser, async (req, res) => {
     try {
         // await console.log(req.user.id);
-        const books =await Books.find({
-            user : req.user.id,
+        const books = await Books.find({
+            user: req.user.id,
         })
         // console.log(books);
         res.json(books);
@@ -43,14 +44,14 @@ router.post('/addbook', fetchuser, [
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { title, description, author, uploadedby, price, genre, coverlink,  pdflink} = req.body;
+        const { title, description, author, uploadedby, price, genre, coverlink, pdflink } = req.body;
 
 
         const book = new Books({
-            title, description, author, uploadedby, price, genre, coverlink,  pdflink, user: req.user.id
+            title, description, author, uploadedby, price, genre, coverlink, pdflink, user: req.user.id
         })
 
-    
+
 
         const savedBook = await book.save();
 
@@ -66,7 +67,7 @@ router.post('/addbook', fetchuser, [
 router.put('/updatebook/:id', fetchuser, async (req, res) => {
     try {
 
-        const { title, description, author, uploadedby, price, genre, coverlink,  pdflink} = req.body;
+        const { title, description, author, uploadedby, price, genre, coverlink, pdflink } = req.body;
         // create a newBook object
 
         const newBook = {};
@@ -79,7 +80,7 @@ router.put('/updatebook/:id', fetchuser, async (req, res) => {
         if (coverlink) { newBook.coverlink = coverlink };
         if (pdflink) { newBook.pdflink = pdflink };
 
-        
+
 
         // Find the book to be updated and update it
         let book = await Books.findById(req.params.id);
@@ -130,8 +131,8 @@ router.delete('/deletebook/:id', fetchuser, async (req, res) => {
     }
 })
 
-// ROUTE 4: Get an existing Book using: get "/api/books/bookdetail". Login not required
-router.get('/bookdetail/:id',  async (req, res) => {
+// ROUTE 5: Get an existing Book using: get "/api/books/bookdetail". Login not required
+router.get('/bookdetail/:id', async (req, res) => {
     try {
 
         // Find the book 
@@ -140,12 +141,43 @@ router.get('/bookdetail/:id',  async (req, res) => {
 
         // console.log(book.user.toString());
 
-        res.json({book});
+        res.json({ book });
 
     } catch (error) {
         // console.error(error.message);
         res.status(500).send("Internal Server Error");
     }
 })
+
+// Apply bodyParser middleware to parse JSON bodies for all routes under /api/books
+router.use(bodyParser.json());
+
+// ROUTE 6: Get an existing Book using: get "/api/books/search". Login not required on search
+router.get('/search', async (req, res) => {
+    try {
+        const searchTerm = req.query.searchTerm;
+        console.log(searchTerm);
+        let query = {};
+        if (searchTerm) {
+            query = {
+                $or: [
+                    { title: { $regex: searchTerm, $options: 'i' } },
+                    { description: { $regex: searchTerm, $options: 'i' } },
+                    { uploadedby: { $regex: searchTerm, $options: 'i' } },
+                    { author: { $regex: searchTerm, $options: 'i' } },
+                    { genre: { $regex: searchTerm, $options: 'i' } },
+                    // Add more fields to search as needed
+                ],
+            };
+        }
+        const books1 = await Books.find(query);
+        console.log(books1)
+        res.json(books1);
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+
+});
 
 module.exports = router
