@@ -156,7 +156,7 @@ router.use(bodyParser.json());
 router.get('/search', async (req, res) => {
     try {
         const searchTerm = req.query.searchTerm;
-        console.log(searchTerm);
+        // console.log(searchTerm);
         let query = {};
         if (searchTerm) {
             query = {
@@ -171,7 +171,7 @@ router.get('/search', async (req, res) => {
             };
         }
         const books1 = await Books.find(query);
-        console.log(books1)
+        // console.log(books1)
         res.json(books1);
     } catch (error) {
         console.error('Error fetching books:', error);
